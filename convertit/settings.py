@@ -101,13 +101,14 @@ SIMPLE_JWT = {
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+   'default': {
+
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'sdp4',
-        'USER' : 'root',
-        'PASSWORD' : 'password',
-        'HOST': '127.0.0.1',
-        'PORT' : '3306'
+        'USER': 'admin',
+        'PASSWORD': 'password',
+        'HOST': 'database-1.cxq41gcrxjdr.ap-south-1.rds.amazonaws.com',
+        'PORT': '3306',
     }
 }
 
@@ -156,3 +157,13 @@ AUTH_USER_MODEL = 'HandleAuth.User'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GOOGLE_CLIENT_ID=''
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_STORAGE_BUCKET_NAME = 'sdp4fileconverter'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_FILE_OVERWRITE = False
+
+AWS_ACCESS_KEY_ID = 'AKIAZUECV5CFL7CYNS42'
+AWS_SECRET_ACCESS_KEY = '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'

@@ -6,14 +6,26 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIVie
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import json
+import random
+import string
+import os
 
-from .models import User
+import datetime
+
+from pdf2image import convert_from_path, convert_from_bytes
+from zipfile import ZipFile
+import img2pdf 
+import re
+
+from .models import User, UserFiles
 from django.contrib.auth import logout
 from rest_framework import status
 
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import UserLoginSerializer, UserSerializer, UserRegistrationSerializer, GoogleSocialAuthSerializer
+from .serializers import UserDataSerializer, UserLoginSerializer, UserSerializer, UserRegistrationSerializer, GoogleSocialAuthSerializer
+
+from storages.backends.s3boto3 import S3Boto3Storage
 
 
 class UserRegistrationView(CreateAPIView):
@@ -109,3 +121,78 @@ class GoogleSocialAuthView(GenericAPIView):
             print(e)
 
             return Response({'error': str(e), 'status': 0})
+
+
+class UpdateData(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserDataSerializer
+
+    def post(self, request):
+
+        try:
+
+            print(request.data)
+            
+
+            j = UserFiles()
+            j.created_on = datetime.datetime.now()
+            j.update_on = datetime.datetime.now()
+            
+
+
+            j.file_name = request.data['file_name']
+            j.file_url = request.data['file_url']
+            j.old_name = request.data['old_name']
+            j.old_url = request.data['old_url']
+            j.user_email =  request.data['email']
+            j.file_size = request.data['file_size']
+            j.file_type = request.data['file_type']
+
+            j.save()
+            return JsonResponse({"message" : "success"})
+
+        except Exception as e:
+
+            print(str(e) )
+
+            return JsonResponse({"message" : "error"})
+
+
+class GetUserFiles(RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserDataSerializer
+
+    def get(self, request, email):
+        try:
+
+            plist = list(UserFiles.objects.values().filter(
+                user_email=email).order_by('-created_on'))
+
+            response = {
+                'success': 'true',
+                 'message': 'User Post fetched successfully',
+                 'data': plist
+             }    
+            status_code = status.HTTP_200_OK
+            return Response(response, status=status_code)         
+
+
+
+        except Exception as e:
+
+            response = {
+                'success': 'false',
+                 'message': 'error',
+                 'data': []
+             }  
+
+            status_code = status.HTTP_200_OK
+
+            print(str(e))
+            return Response(response, status=status_code)         
+
+
+
+
+
+        

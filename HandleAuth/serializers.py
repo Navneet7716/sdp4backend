@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import User
+from .models import User, UserFiles
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from rest_framework import serializers
@@ -111,3 +111,15 @@ class GoogleSocialAuthSerializer(serializers.Serializer):
 
         return register_social_user(
             provider=provider, user_id=user_id, email=email, name=name)
+
+
+
+class UserDataSerializer(serializers.Serializer):
+
+    class Meta:
+        model = UserFiles
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user = UserFiles.objects.create(**validated_data)
+        return user
